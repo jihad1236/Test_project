@@ -1,70 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
-import 'package:test_project/model/post_model.dart';
+import 'package:test_project/controller/post_controller.dart';
 
-class ShareWidget extends StatefulWidget {
-  const ShareWidget({Key? key}) : super(key: key);
-
-  @override
-  State<ShareWidget> createState() => _ShareWidgetState();
-}
-
-class _ShareWidgetState extends State<ShareWidget> {
-  final _messageController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
-  final List<PostModel> posts = [
-    PostModel(
-      departureAirport: 'JFK',
-      arrivalAirport: 'LAX',
-      airline: 'Emirates',
-      travelClass: 'Economy',
-      message: 'Flying from JFK to LAX on Emirates Economy.',
-      travelDate: DateTime.now(),
-      rating: 4.0,
-      imageUrl: 'https://via.placeholder.com/150',
-    ),
-    PostModel(
-      departureAirport: 'LAX',
-      arrivalAirport: 'DXB',
-      airline: 'Delta',
-      travelClass: 'Business',
-      message: 'Flying from LAX to DXB on Delta Business.',
-      travelDate: DateTime.now(),
-      rating: 4.0,
-      imageUrl: 'https://via.placeholder.com/150',
-    ),
-  ];
-
-  String? departure, arrival, airline, travelClass;
-  int rating = 4;
-  DateTime? travelDate;
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-
-    super.dispose();
-  }
+class ShareWidget extends StatelessWidget {
+  const ShareWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(ShareController());
     final isSmall = MediaQuery.of(context).size.width <= 991;
-
-    final dropdownAirports =
-        posts.map((e) => e.departureAirport).toSet().toList();
-    final dropdownArrivals =
-        posts.map((e) => e.arrivalAirport).toSet().toList();
-    final dropdownAirlines = posts.map((e) => e.airline).toSet().toList();
-    final dropdownClasses = posts.map((e) => e.travelClass).toSet().toList();
 
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: _formKey,
+            key: controller.formKey,
             child: Container(
               constraints: const BoxConstraints(maxWidth: 540),
               padding: EdgeInsets.symmetric(
@@ -87,59 +39,173 @@ class _ShareWidgetState extends State<ShareWidget> {
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Share',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 28),
-                  _buildUploadBox(isSmall),
-                  const SizedBox(height: 28),
-                  _buildDropdown(
-                    'Departure Airport',
-                    dropdownAirports,
-                    (val) => setState(() => departure = val),
-                  ),
-                  _buildDropdown(
-                    'Arrival Airport',
-                    dropdownArrivals,
-                    (val) => setState(() => arrival = val),
-                  ),
-                  _buildDropdown(
-                    'Airline',
-                    dropdownAirlines,
-                    (val) => setState(() => airline = val),
-                  ),
-                  _buildDropdown(
-                    'Class',
-                    dropdownClasses,
-                    (val) => setState(() => travelClass = val),
-                  ),
-                  const SizedBox(height: 18),
-                  _buildMessageField(),
-                  const SizedBox(height: 18),
-                  _buildDateAndRatingRow(),
-                  const SizedBox(height: 32),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF232323),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isSmall ? 20 : 34,
-                        vertical: 13,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+              child: Obx(
+                () => Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'Share',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    onPressed: _submitForm,
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(color: Colors.white),
+                    const SizedBox(height: 28),
+                    _buildUploadBox(isSmall),
+                    const SizedBox(height: 28),
+                    _buildDropdown(
+                      'Departure Airport',
+                      controller.dropdownAirports,
+                      (val) => controller.departure.value = val,
                     ),
-                  ),
-                ],
+                    _buildDropdown(
+                      'Arrival Airport',
+                      controller.dropdownArrivals,
+                      (val) => controller.arrival.value = val,
+                    ),
+                    _buildDropdown(
+                      'Airline',
+                      controller.dropdownAirlines,
+                      (val) => controller.airline.value = val,
+                    ),
+                    _buildDropdown(
+                      'Class',
+                      controller.dropdownClasses,
+                      (val) => controller.travelClass.value = val,
+                    ),
+                    const SizedBox(height: 18),
+                    TextFormField(
+                      controller: controller.messageController,
+                      maxLines: 6,
+                      decoration: InputDecoration(
+                        hintText: 'Write your message',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(
+                                color: Color(0xFFE8E8EA),
+                                width: 1,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 18,
+                              ),
+                              alignment: Alignment.centerLeft,
+                            ),
+                            onPressed: () => controller.pickTravelDate(context),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  controller.travelDate.value == null
+                                      ? 'Travel Date'
+                                      : DateFormat(
+                                        'MMMM yyyy',
+                                      ).format(controller.travelDate.value!),
+                                  style: const TextStyle(
+                                    color: Color(0xFFA5A3A9),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                Container(
+                                  width: 45,
+                                  height: 46,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE4E4E4),
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: const Icon(
+                                    Icons.calendar_today,
+                                    size: 22,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Rating',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Wrap(
+                                spacing: 4,
+                                children: List.generate(
+                                  5,
+                                  (index) => GestureDetector(
+                                    onTap:
+                                        () =>
+                                            controller.updateRating(index + 1),
+                                    child: Icon(
+                                      Icons.star,
+                                      size: 22,
+                                      color:
+                                          index < controller.rating.value
+                                              ? Colors.amber
+                                              : Colors.grey[300],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF232323),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isSmall ? 20 : 34,
+                          vertical: 13,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      onPressed: () {
+                        if (controller.postModel == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please fill all fields'),
+                            ),
+                          );
+                          return;
+                        }
+                        Navigator.pop(context, controller.postModel);
+                      },
+                      child: const Text(
+                        'Submit',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -191,14 +257,13 @@ class _ShareWidgetState extends State<ShareWidget> {
           color: Color(0xFFA5A3A9),
           fontSize: 14,
           fontWeight: FontWeight.w400,
-          fontFamily: 'Plus Jakarta Sans',
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFE8E8EA), width: 1),
+          borderSide: const BorderSide(color: Color(0xFFE8E8EA), width: 1),
           borderRadius: BorderRadius.circular(14),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFE8E8EA), width: 1),
+          borderSide: const BorderSide(color: Color(0xFFE8E8EA), width: 1),
           borderRadius: BorderRadius.circular(14),
         ),
       ),
@@ -208,148 +273,4 @@ class _ShareWidgetState extends State<ShareWidget> {
       icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
     ),
   );
-
-  Widget _buildMessageField() => TextFormField(
-    controller: _messageController,
-    maxLines: 6,
-    decoration: InputDecoration(
-      hintText: 'Write your message',
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-    ),
-  );
-
-  Widget _buildDateAndRatingRow() => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Expanded(
-        flex: 3,
-        child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Color(0xFFE8E8EA), width: 1),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-            alignment: Alignment.centerLeft,
-          ),
-          onPressed: () async {
-            final date = await showMonthPicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (date != null) setState(() => travelDate = date);
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                travelDate == null
-                    ? 'Travel Date'
-                    : DateFormat('MMMM yyyy').format(travelDate!),
-                style: const TextStyle(
-                  color: Color(0xFFA5A3A9),
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Container(
-                width: 45,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE4E4E4),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: const Icon(
-                  Icons.calendar_today,
-                  size: 22,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const SizedBox(width: 16),
-      Expanded(
-        flex: 2,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Rating',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                fontFamily: 'Plus Jakarta Sans',
-              ),
-            ),
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 4,
-              children: List.generate(
-                5,
-                (index) => GestureDetector(
-                  onTap: () => setState(() => rating = index + 1),
-                  child: Icon(
-                    Icons.star,
-                    size: 22,
-                    color: index < rating ? Colors.amber : Colors.grey[300],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ],
-  );
-
-  void _submitForm() {
-    if ([
-          departure,
-          arrival,
-          airline,
-          travelClass,
-          travelDate,
-          _messageController.text,
-        ].contains(null) ||
-        _messageController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
-      return;
-    }
-
-    final post = PostModel(
-      departureAirport: departure!,
-      arrivalAirport: arrival!,
-      airline: airline!,
-      travelClass: travelClass!,
-      message: _messageController.text,
-      travelDate: travelDate!,
-      rating: rating.toDouble(),
-      imageUrl: 'https://via.placeholder.com/150',
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Post submitted successfully!${post.airline}')),
-    );
-    print(post.airline);
-    Navigator.pop(
-      context,
-      PostModel(
-        departureAirport: departure!,
-        arrivalAirport: arrival!,
-        airline: airline!,
-        travelClass: travelClass!,
-        message: _messageController.text,
-        travelDate: travelDate!,
-        rating: rating.toDouble(),
-        imageUrl: 'https://via.placeholder.com/150',
-      ),
-    );
-  }
 }
