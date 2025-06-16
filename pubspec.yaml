@@ -39,6 +39,9 @@ dependencies:
   cloud_firestore: ^5.6.9
   iconsax: ^0.0.8
   device_preview: ^1.2.0
+  dotted_border: ^3.0.1
+  month_picker_dialog: ^6.0.3
+  get: ^4.7.2
 
 dev_dependencies:
   flutter_test:

@@ -2,12 +2,59 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:test_project/consts/app_colors.dart';
 import 'package:test_project/elements/news_feed.dart';
+import 'package:test_project/model/post_model.dart';
+import 'package:test_project/views/post.dart';
 
 class Home extends StatelessWidget {
-  const Home({super.key});
+  Home({super.key});
+
+  final List<PostModel> posts = [
+    PostModel(
+      departureAirport: 'JFK',
+      arrivalAirport: 'LAX',
+      airline: 'Emirates',
+      travelClass: 'Economy',
+      message: 'Flying from JFK to LAX on Emirates Economy.',
+      travelDate: DateTime.now(),
+      rating: 4.0,
+      imageUrl: 'https://via.placeholder.com/150',
+    ),
+    PostModel(
+      departureAirport: 'LAX',
+      arrivalAirport: 'DXB',
+      airline: 'Delta',
+      travelClass: 'Business',
+      message: 'Flying from LAX to DXB on Delta Business.',
+      travelDate: DateTime.now(),
+      rating: 4.0,
+      imageUrl: 'https://via.placeholder.com/150',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    // final List<PostModel> posts = [
+    //   PostModel(
+    //     departureAirport: 'JFK',
+    //     arrivalAirport: 'LAX',
+    //     airline: 'Emirates',
+    //     travelClass: 'Economy',
+    //     message: 'Flying from JFK to LAX on Emirates Economy.',
+    //     travelDate: DateTime.now(),
+    //     rating: 4.0,
+    //     imageUrl: 'https://via.placeholder.com/150',
+    //   ),
+    //   PostModel(
+    //     departureAirport: 'LAX',
+    //     arrivalAirport: 'DXB',
+    //     airline: 'Delta',
+    //     travelClass: 'Business',
+    //     message: 'Flying from LAX to DXB on Delta Business.',
+    //     travelDate: DateTime.now(),
+    //     rating: 4.0,
+    //     imageUrl: 'https://via.placeholder.com/150',
+    //   ),
+    // ];
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -22,9 +69,13 @@ class Home extends StatelessWidget {
                 const SizedBox(height: 30),
                 _buildBanner(),
                 const SizedBox(height: 30),
-                NewsFeedCard(),
+                ...posts.map(
+                  (post) => Padding(
+                    padding: const EdgeInsets.only(bottom: 30),
+                    child: NewsFeedCard(post: post),
+                  ),
+                ),
                 const SizedBox(height: 30),
-                NewsFeedCard(),
               ],
             ),
           ),
@@ -96,6 +147,12 @@ class Home extends StatelessWidget {
                         ? constraints.maxWidth
                         : (constraints.maxWidth - 12) / 2,
                 child: _button(
+                  onTapped: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ShareWidget()),
+                    );
+                  },
                   text: 'Share Your Experience',
                   icon: Iconsax.people,
                   fullWidth: true,
@@ -107,6 +164,7 @@ class Home extends StatelessWidget {
                         ? constraints.maxWidth
                         : (constraints.maxWidth - 12) / 2,
                 child: _button(
+                  onTapped: () {},
                   text: 'Ask A Question',
                   icon: Iconsax.profile_2user,
                   fullWidth: true,
@@ -117,36 +175,45 @@ class Home extends StatelessWidget {
         },
       ),
       const SizedBox(height: 16),
-      _button(text: 'Search', icon: Iconsax.search_normal, fullWidth: true),
+      _button(
+        onTapped: () {},
+        text: 'Search',
+        icon: Iconsax.search_normal,
+        fullWidth: true,
+      ),
     ],
   );
 
   Widget _button({
+    required VoidCallback onTapped,
     required String text,
     required IconData icon,
     bool fullWidth = false,
-  }) => Container(
-    height: 55,
-    width: fullWidth ? double.infinity : null,
-    decoration: BoxDecoration(
-      color: AppColors.primary,
-      borderRadius: BorderRadius.circular(18),
-    ),
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          text,
-          style: const TextStyle(
-            color: AppColors.background,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
+  }) => GestureDetector(
+    onTap: onTapped,
+    child: Container(
+      height: 55,
+      width: fullWidth ? double.infinity : null,
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            text,
+            style: const TextStyle(
+              color: AppColors.background,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Icon(icon, color: AppColors.background, size: 20),
-      ],
+          const SizedBox(width: 10),
+          Icon(icon, color: AppColors.background, size: 20),
+        ],
+      ),
     ),
   );
 

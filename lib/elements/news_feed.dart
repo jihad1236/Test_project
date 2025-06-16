@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:test_project/consts/app_colors.dart';
+import 'package:test_project/model/post_model.dart';
 
 class NewsFeedCard extends StatelessWidget {
-  const NewsFeedCard({Key? key}) : super(key: key);
+  final PostModel post;
+  NewsFeedCard({Key? key, required this.post}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +51,11 @@ class NewsFeedCard extends StatelessWidget {
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
-            children: const [
+            children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _Badge(text: 'LHR - DEL'),
+                  _Badge(text: post.airline),
                   _Badge(text: 'Air India'),
                   _Badge(text: 'Business Class'),
                   _Badge(text: 'July 2023'),
