@@ -6,5 +6,6 @@ class AppColors {
   static const background = Color(0xFFF2F4F8);
   static const textPrimary = Colors.black87;
   static const textSecondary = Colors.grey;
+  static const divider = Color.fromARGB(255, 240, 240, 240);
   static const star = Colors.amber;
 }
