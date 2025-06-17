@@ -56,22 +56,22 @@ class ShareWidget extends StatelessWidget {
                     _buildDropdown(
                       'Departure Airport',
                       controller.dropdownAirports,
-                      (val) => controller.departure.value = val,
+                      (val) => controller.departure.value = val ?? '',
                     ),
                     _buildDropdown(
                       'Arrival Airport',
                       controller.dropdownArrivals,
-                      (val) => controller.arrival.value = val,
+                      (val) => controller.arrival.value = val ?? '',
                     ),
                     _buildDropdown(
                       'Airline',
                       controller.dropdownAirlines,
-                      (val) => controller.airline.value = val,
+                      (val) => controller.airline.value = val ?? '',
                     ),
                     _buildDropdown(
                       'Class',
                       controller.dropdownClasses,
-                      (val) => controller.travelClass.value = val,
+                      (val) => controller.travelClass.value = val ?? '',
                     ),
                     const SizedBox(height: 18),
                     TextFormField(
@@ -177,32 +177,35 @@ class ShareWidget extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF232323),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isSmall ? 20 : 34,
-                          vertical: 13,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      onPressed: () {
-                        if (controller.postModel == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please fill all fields'),
-                            ),
-                          );
-                          return;
-                        }
-                        Navigator.pop(context, controller.postModel);
-                      },
-                      child: const Text(
-                        'Submit',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                    Obx(
+                      () =>
+                          controller.isLoading.value
+                              ? const Center(child: CircularProgressIndicator())
+                              : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF232323),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: isSmall ? 20 : 34,
+                                    vertical: 13,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  await controller.submitPost();
+                                  if (controller.postModel.value != null) {
+                                    Navigator.pop(
+                                      context,
+                                      controller.postModel.value,
+                                    );
+                                  }
+                                },
+                                child: const Text(
+                                  'Submit',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
                     ),
                   ],
                 ),

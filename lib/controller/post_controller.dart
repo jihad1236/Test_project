@@ -84,7 +84,7 @@ class ShareController extends GetxController {
         travelDate: travelDate.value!,
         rating: rating.value.toDouble(),
         imageUrl:
-            'https://example.com/demo.jpg', // Replace with actual upload logic
+            'assets/images/demo_image.jpg', // Replace with actual upload logic
       );
 
       try {

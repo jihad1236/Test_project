@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:test_project/consts/app_colors.dart';
@@ -8,53 +9,18 @@ import 'package:test_project/views/post.dart';
 class Home extends StatelessWidget {
   Home({super.key});
 
-  final List<PostModel> posts = [
-    PostModel(
-      departureAirport: 'JFK',
-      arrivalAirport: 'LAX',
-      airline: 'Emirates',
-      travelClass: 'Economy',
-      message: 'Flying from JFK to LAX on Emirates Economy.',
-      travelDate: DateTime.now(),
-      rating: 4.0,
-      imageUrl: 'https://via.placeholder.com/150',
-    ),
-    PostModel(
-      departureAirport: 'LAX',
-      arrivalAirport: 'DXB',
-      airline: 'Delta',
-      travelClass: 'Business',
-      message: 'Flying from LAX to DXB on Delta Business.',
-      travelDate: DateTime.now(),
-      rating: 4.0,
-      imageUrl: 'https://via.placeholder.com/150',
-    ),
-  ];
+  // 🔥 Fetch posts from Firestore once (for FutureBuilder)
+  final Future<List<PostModel>> futurePosts = FirebaseFirestore.instance
+      .collection('posts')
+      .orderBy('travelDate', descending: true)
+      .get()
+      .then(
+        (snapshot) =>
+            snapshot.docs.map((doc) => PostModel.fromMap(doc.data())).toList(),
+      );
 
   @override
   Widget build(BuildContext context) {
-    // final List<PostModel> posts = [
-    //   PostModel(
-    //     departureAirport: 'JFK',
-    //     arrivalAirport: 'LAX',
-    //     airline: 'Emirates',
-    //     travelClass: 'Economy',
-    //     message: 'Flying from JFK to LAX on Emirates Economy.',
-    //     travelDate: DateTime.now(),
-    //     rating: 4.0,
-    //     imageUrl: 'https://via.placeholder.com/150',
-    //   ),
-    //   PostModel(
-    //     departureAirport: 'LAX',
-    //     arrivalAirport: 'DXB',
-    //     airline: 'Delta',
-    //     travelClass: 'Business',
-    //     message: 'Flying from LAX to DXB on Delta Business.',
-    //     travelDate: DateTime.now(),
-    //     rating: 4.0,
-    //     imageUrl: 'https://via.placeholder.com/150',
-    //   ),
-    // ];
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -65,16 +31,38 @@ class Home extends StatelessWidget {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 30),
-                _buildActionButtons(),
+                _buildActionButtons(context),
                 const SizedBox(height: 30),
                 _buildBanner(),
                 const SizedBox(height: 30),
-                ...posts.map(
-                  (post) => Padding(
-                    padding: const EdgeInsets.only(bottom: 30),
-                    child: NewsFeedCard(post: post),
-                  ),
+
+                // 🔁 Firestore Data from FutureBuilder
+                FutureBuilder<List<PostModel>>(
+                  future: futurePosts,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return const Center(child: Text('Error loading posts'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('No posts available'));
+                    }
+
+                    final posts = snapshot.data!;
+                    return Column(
+                      children:
+                          posts
+                              .map(
+                                (post) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 30),
+                                  child: NewsFeedCard(post: post),
+                                ),
+                              )
+                              .toList(),
+                    );
+                  },
                 ),
+
                 const SizedBox(height: 30),
               ],
             ),
@@ -131,7 +119,7 @@ class Home extends StatelessWidget {
     ],
   );
 
-  Widget _buildActionButtons() => Column(
+  Widget _buildActionButtons(BuildContext context) => Column(
     children: [
       LayoutBuilder(
         builder: (context, constraints) {
