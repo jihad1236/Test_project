@@ -1,4 +1,5 @@
 class PostModel {
+  final String id;
   final String departureAirport;
   final String arrivalAirport;
   final String airline;
@@ -9,6 +10,7 @@ class PostModel {
   final String imageUrl;
 
   PostModel({
+    required this.id,
     required this.departureAirport,
     required this.arrivalAirport,
     required this.airline,
@@ -21,6 +23,7 @@ class PostModel {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'departureAirport': departureAirport,
       'arrivalAirport': arrivalAirport,
       'airline': airline,
@@ -35,6 +38,7 @@ class PostModel {
   // Optional: fromMap constructor for fetching back from Firebase
   factory PostModel.fromMap(Map<String, dynamic> map) {
     return PostModel(
+      id: map['id'],
       departureAirport: map['departureAirport'],
       arrivalAirport: map['arrivalAirport'],
       airline: map['airline'],

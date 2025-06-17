@@ -1,23 +1,57 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/utils.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:test_project/auth/auth_controller.dart';
 import 'package:test_project/consts/app_colors.dart';
 import 'package:test_project/elements/news_feed.dart';
 import 'package:test_project/model/post_model.dart';
+import 'package:test_project/views/authentication/login.dart';
+import 'package:test_project/views/authentication/register.dart';
 import 'package:test_project/views/post.dart';
 
 class Home extends StatelessWidget {
   Home({super.key});
-
+  final controller = Get.put(AuthController());
   // 🔥 Fetch posts from Firestore once (for FutureBuilder)
-  final Future<List<PostModel>> futurePosts = FirebaseFirestore.instance
-      .collection('posts')
-      .orderBy('travelDate', descending: true)
+  final Future<List<PostModel>> futureUserPosts = FirebaseFirestore.instance
+      .collection('users')
+      .doc(FirebaseAuth.instance.currentUser!.uid)
       .get()
-      .then(
-        (snapshot) =>
-            snapshot.docs.map((doc) => PostModel.fromMap(doc.data())).toList(),
-      );
+      .then((doc) {
+        final data = doc.data();
+        if (data == null || !data.containsKey('posts')) return <PostModel>[];
+
+        final List posts = data['posts'];
+        return posts
+            .map((e) => PostModel.fromMap(Map<String, dynamic>.from(e)))
+            .toList();
+      });
+
+  Future<List<PostModel>> fetchAllUserPosts() async {
+    final snapshot = await FirebaseFirestore.instance.collection('users').get();
+
+    List<PostModel> allPosts = [];
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      if (data.containsKey('posts')) {
+        final List posts = data['posts'];
+        final postModels =
+            posts.map<PostModel>((postData) {
+              return PostModel.fromMap(Map<String, dynamic>.from(postData));
+            }).toList();
+        allPosts.addAll(postModels);
+      }
+    }
+
+    // Optional: Sort by travelDate descending
+    allPosts.sort((a, b) => b.travelDate.compareTo(a.travelDate));
+
+    return allPosts;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +72,7 @@ class Home extends StatelessWidget {
 
                 // 🔁 Firestore Data from FutureBuilder
                 FutureBuilder<List<PostModel>>(
-                  future: futurePosts,
+                  future: futureUserPosts,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -113,7 +147,19 @@ class Home extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          const Icon(Iconsax.menu_1, size: 24),
+          IconButton(
+            onPressed: () {
+              Get.to(RegisterPage());
+            },
+            icon: const Icon(Iconsax.menu_1, size: 24),
+          ),
+          if (FirebaseAuth.instance.currentUser != null)
+            IconButton(
+              onPressed: () async {
+                await controller.logoutUser();
+              },
+              icon: const Icon(Iconsax.logout, size: 24),
+            ),
         ],
       ),
     ],

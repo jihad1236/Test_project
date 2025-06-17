@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
@@ -19,6 +20,7 @@ class ShareController extends GetxController {
 
   final dummyPosts = <PostModel>[
     PostModel(
+      id: '1',
       departureAirport: 'JFK',
       arrivalAirport: 'LAX',
       airline: 'Emirates',
@@ -29,6 +31,7 @@ class ShareController extends GetxController {
       imageUrl: 'https://via.placeholder.com/150',
     ),
     PostModel(
+      id: '2',
       departureAirport: 'LAX',
       arrivalAirport: 'DXB',
       airline: 'Delta',
@@ -67,6 +70,7 @@ class ShareController extends GetxController {
 
   Future<void> submitPost() async {
     isLoading.value = true;
+
     if (formKey.currentState!.validate() &&
         departure.value.isNotEmpty &&
         arrival.value.isNotEmpty &&
@@ -75,28 +79,41 @@ class ShareController extends GetxController {
         travelDate.value != null &&
         rating.value > 0 &&
         messageController.text.isNotEmpty) {
-      final newPost = PostModel(
-        departureAirport: departure.value,
-        arrivalAirport: arrival.value,
-        airline: airline.value,
-        travelClass: travelClass.value,
-        message: messageController.text.trim(),
-        travelDate: travelDate.value!,
-        rating: rating.value.toDouble(),
-        imageUrl:
-            'assets/images/demo_image.jpg', // Replace with actual upload logic
-      );
-
       try {
-        await FirebaseFirestore.instance
-            .collection('posts')
-            .add(newPost.toMap());
+        final user = FirebaseAuth.instance.currentUser;
 
-        postModel.value = newPost;
+        if (user == null) {
+          Get.snackbar('Error', 'User not logged in');
+          isLoading.value = false;
+          return;
+        }
+
+        final postData =
+            PostModel(
+              id: DateTime.now().millisecondsSinceEpoch.toString(), // unique ID
+              departureAirport: departure.value,
+              arrivalAirport: arrival.value,
+              airline: airline.value,
+              travelClass: travelClass.value,
+              message: messageController.text.trim(),
+              travelDate: travelDate.value!,
+              rating: rating.value.toDouble(),
+              imageUrl: 'assets/images/demo_image.jpg',
+            ).toMap();
+
+        final userDoc = FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid);
+
+        await userDoc.update({
+          'posts': FieldValue.arrayUnion([postData]),
+        });
+
+        postModel.value = PostModel.fromMap(postData);
 
         Get.snackbar(
           'Success',
-          'Post submitted successfully',
+          'Post added to your profile',
           snackPosition: SnackPosition.BOTTOM,
         );
       } catch (e) {
