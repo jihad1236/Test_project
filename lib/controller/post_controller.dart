@@ -28,7 +28,10 @@ class ShareController extends GetxController {
       message: 'Flying from JFK to LAX on Emirates Economy.',
       travelDate: DateTime.now(),
       rating: 4.0,
-      imageUrl: 'https://via.placeholder.com/150',
+      imageUrl: [
+        'https://via.placeholder.com/150',
+        'https://via.placeholder.com/150',
+      ],
     ),
     PostModel(
       id: '2',
@@ -39,7 +42,10 @@ class ShareController extends GetxController {
       message: 'Flying from LAX to DXB on Delta Business.',
       travelDate: DateTime.now(),
       rating: 4.0,
-      imageUrl: 'https://via.placeholder.com/150',
+      imageUrl: [
+        'https://via.placeholder.com/150',
+        'https://via.placeholder.com/150',
+      ],
     ),
   ];
 
@@ -98,7 +104,11 @@ class ShareController extends GetxController {
               message: messageController.text.trim(),
               travelDate: travelDate.value!,
               rating: rating.value.toDouble(),
-              imageUrl: 'assets/images/demo_image.jpg',
+              imageUrl: [
+                'assets/images/demo_image.jpg',
+                'assets/images/demo_image.jpg',
+                'assets/images/demo_image.jpg',
+              ],
             ).toMap();
 
         final userDoc = FirebaseFirestore.instance

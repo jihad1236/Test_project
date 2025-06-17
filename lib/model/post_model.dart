@@ -7,7 +7,10 @@ class PostModel {
   final String message;
   final DateTime travelDate;
   final double rating;
-  final String imageUrl;
+  final List<String>? imageUrl;
+  List<String>? comments;
+  List<String>? likes;
+  List<Map<String, dynamic>>? replays;
 
   PostModel({
     required this.id,
@@ -19,6 +22,9 @@ class PostModel {
     required this.travelDate,
     required this.rating,
     required this.imageUrl,
+    this.comments,
+    this.likes,
+    this.replays,
   });
 
   Map<String, dynamic> toMap() {
@@ -32,6 +38,9 @@ class PostModel {
       'travelDate': travelDate.toIso8601String(), // Store as ISO string
       'rating': rating,
       'imageUrl': imageUrl,
+      'comments': comments,
+      'likes': likes,
+      'replays': replays,
     };
   }
 
@@ -46,7 +55,10 @@ class PostModel {
       message: map['message'],
       travelDate: DateTime.parse(map['travelDate']),
       rating: map['rating'].toDouble(),
-      imageUrl: map['imageUrl'],
+      imageUrl: map['imageUrl']?.cast<String>(),
+      comments: map['comments']?.cast<String>(),
+      likes: map['likes']?.cast<String>(),
+      replays: map['replays']?.cast<Map<String, dynamic>>(),
     );
   }
 }

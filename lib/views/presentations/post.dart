@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:test_project/controller/post_controller.dart';
+import 'package:test_project/views/widgets/dropdown.dart';
+import 'package:test_project/views/widgets/upload_box.dart';
 
 class ShareWidget extends StatelessWidget {
   const ShareWidget({super.key});
@@ -51,27 +53,29 @@ class ShareWidget extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 28),
-                    _buildUploadBox(isSmall),
+                    upload_box(isSmall: isSmall),
                     const SizedBox(height: 28),
-                    _buildDropdown(
-                      'Departure Airport',
-                      controller.dropdownAirports,
-                      (val) => controller.departure.value = val ?? '',
+                    dropdown(
+                      label: 'Departure Airport',
+                      items: controller.dropdownAirports,
+                      onChanged:
+                          (val) => controller.departure.value = val ?? '',
                     ),
-                    _buildDropdown(
-                      'Arrival Airport',
-                      controller.dropdownArrivals,
-                      (val) => controller.arrival.value = val ?? '',
+                    dropdown(
+                      label: 'Arrival Airport',
+                      items: controller.dropdownArrivals,
+                      onChanged: (val) => controller.arrival.value = val ?? '',
                     ),
-                    _buildDropdown(
-                      'Airline',
-                      controller.dropdownAirlines,
-                      (val) => controller.airline.value = val ?? '',
+                    dropdown(
+                      label: 'Airline',
+                      items: controller.dropdownAirlines,
+                      onChanged: (val) => controller.airline.value = val ?? '',
                     ),
-                    _buildDropdown(
-                      'Class',
-                      controller.dropdownClasses,
-                      (val) => controller.travelClass.value = val ?? '',
+                    dropdown(
+                      label: 'Class',
+                      items: controller.dropdownClasses,
+                      onChanged:
+                          (val) => controller.travelClass.value = val ?? '',
                     ),
                     const SizedBox(height: 18),
                     TextFormField(
@@ -216,64 +220,4 @@ class ShareWidget extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildUploadBox(bool isSmall) => Container(
-    padding: EdgeInsets.symmetric(horizontal: isSmall ? 20 : 80, vertical: 49),
-    decoration: BoxDecoration(
-      color: const Color(0xFFF8F8FF),
-      borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: const Color.fromRGBO(56, 78, 183, 0.3)),
-    ),
-    child: Column(
-      children: const [
-        Icon(Icons.cloud_upload_outlined, size: 48, color: Colors.grey),
-        SizedBox(height: 9),
-        Text.rich(
-          TextSpan(
-            text: 'Drop your image here or ',
-            style: TextStyle(fontWeight: FontWeight.w700),
-            children: [
-              TextSpan(
-                text: 'Browse',
-                style: TextStyle(
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-
-  Widget _buildDropdown(
-    String label,
-    List<String> items,
-    ValueChanged<String?> onChanged,
-  ) => Padding(
-    padding: const EdgeInsets.only(bottom: 18),
-    child: DropdownButtonFormField<String>(
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(
-          color: Color(0xFFA5A3A9),
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Color(0xFFE8E8EA), width: 1),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Color(0xFFE8E8EA), width: 1),
-          borderRadius: BorderRadius.circular(14),
-        ),
-      ),
-      items:
-          items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-      onChanged: onChanged,
-      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
-    ),
-  );
 }

@@ -3,18 +3,18 @@ class UserModel {
   String? name;
   String? email;
   List<Map<String, dynamic>>? posts;
-  List<String>? comments;
-  List<String>? likes;
-  List<Map<String, dynamic>>? replays;
+  // List<String>? comments;
+  // List<String>? likes;
+  // List<Map<String, dynamic>>? replays;
 
   UserModel({
     this.id,
     this.name,
     this.email,
     this.posts,
-    this.comments,
-    this.likes,
-    this.replays,
+    // this.comments,
+    // this.likes,
+    // this.replays,
   });
 
   // 🔁 Convert Firestore data into UserModel
@@ -27,12 +27,12 @@ class UserModel {
           (data['posts'] as List<dynamic>?)
               ?.map((e) => Map<String, dynamic>.from(e))
               .toList(),
-      comments: List<String>.from(data['comments'] ?? []),
-      likes: List<String>.from(data['likes'] ?? []),
-      replays:
-          (data['replays'] as List<dynamic>?)
-              ?.map((e) => Map<String, dynamic>.from(e))
-              .toList(),
+      // comments: List<String>.from(data['comments'] ?? []),
+      // likes: List<String>.from(data['likes'] ?? []),
+      // replays:
+      //     (data['replays'] as List<dynamic>?)
+      //         ?.map((e) => Map<String, dynamic>.from(e))
+      //         .toList(),
     );
   }
 
@@ -43,9 +43,9 @@ class UserModel {
       'name': name,
       'email': email,
       'posts': posts ?? [],
-      'comments': comments ?? [],
-      'likes': likes ?? [],
-      'replays': replays ?? [],
+      // 'comments': comments ?? [],
+      // 'likes': likes ?? [],
+      // 'replays': replays ?? [],
     };
   }
 }

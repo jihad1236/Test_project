@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:test_project/consts/app_colors.dart';
 import 'package:test_project/elements/news_feed_ui/comment_card.dart';
 import 'package:test_project/model/post_model.dart';
@@ -8,8 +11,40 @@ class NewsFeedCard extends StatelessWidget {
 
   const NewsFeedCard({Key? key, required this.post}) : super(key: key);
 
+  void addCommentToPost(String commentText, String postId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || postId.isEmpty) return;
+
+    final postDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('comments&replays')
+        .doc(postId);
+
+    try {
+      // Ensure the post exists, or create if needed
+      final postSnapshot = await postDocRef.get();
+      if (!postSnapshot.exists) {
+        await postDocRef.set({
+          'comments': [commentText],
+        }, SetOptions(merge: true));
+      } else {
+        await postDocRef.update({
+          'comments': FieldValue.arrayUnion([commentText]),
+        });
+      }
+
+      Get.snackbar('Success', 'Comment added to this post');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to add comment: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final TextEditingController commentController = TextEditingController();
+    final postId = post.id ?? ''; // Ensure `post.id` is not null
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.secondary,
@@ -84,7 +119,7 @@ class NewsFeedCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.asset(
-              post.imageUrl,
+              post.imageUrl![0],
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -126,7 +161,9 @@ class NewsFeedCard extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          CommentCard(),
+          // 🔽 Pass postId to CommentCard
+          CommentCard(postId: postId),
+
           const SizedBox(height: 16),
           const Text(
             'See More Comments',
@@ -137,6 +174,7 @@ class NewsFeedCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+
           Row(
             children: [
               const CircleAvatar(
@@ -157,16 +195,32 @@ class NewsFeedCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
-                        'Write Your Comment',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: commentController,
+                          style: const TextStyle(fontSize: 13),
+                          decoration: const InputDecoration(
+                            hintText: 'Write your comment',
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
                         ),
                       ),
-                      Icon(Icons.send_rounded, color: AppColors.primary),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.send_rounded,
+                          color: AppColors.primary,
+                        ),
+                        onPressed: () {
+                          final text = commentController.text.trim();
+                          if (text.isNotEmpty) {
+                            addCommentToPost(text, postId);
+                            commentController.clear();
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),

@@ -40,9 +40,6 @@ class AuthController extends GetxController {
         name: usernameController.text.trim(),
         email: emailController.text.trim(),
         posts: [],
-        comments: [],
-        likes: [],
-        replays: [],
       );
 
       // ⬆ Save UserModel to Firestore

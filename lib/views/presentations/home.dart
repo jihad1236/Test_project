@@ -2,56 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/utils.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:test_project/auth/auth_controller.dart';
 import 'package:test_project/consts/app_colors.dart';
 import 'package:test_project/elements/news_feed.dart';
 import 'package:test_project/model/post_model.dart';
-import 'package:test_project/views/authentication/login.dart';
 import 'package:test_project/views/authentication/register.dart';
 import 'package:test_project/views/post.dart';
 
 class Home extends StatelessWidget {
   Home({super.key});
   final controller = Get.put(AuthController());
-  // 🔥 Fetch posts from Firestore once (for FutureBuilder)
-  final Future<List<PostModel>> futureUserPosts = FirebaseFirestore.instance
-      .collection('users')
-      .doc(FirebaseAuth.instance.currentUser!.uid)
-      .get()
-      .then((doc) {
-        final data = doc.data();
-        if (data == null || !data.containsKey('posts')) return <PostModel>[];
-
-        final List posts = data['posts'];
-        return posts
-            .map((e) => PostModel.fromMap(Map<String, dynamic>.from(e)))
-            .toList();
-      });
-
-  Future<List<PostModel>> fetchAllUserPosts() async {
-    final snapshot = await FirebaseFirestore.instance.collection('users').get();
-
-    List<PostModel> allPosts = [];
-
-    for (var doc in snapshot.docs) {
-      final data = doc.data();
-      if (data.containsKey('posts')) {
-        final List posts = data['posts'];
-        final postModels =
-            posts.map<PostModel>((postData) {
-              return PostModel.fromMap(Map<String, dynamic>.from(postData));
-            }).toList();
-        allPosts.addAll(postModels);
-      }
-    }
-
-    // Optional: Sort by travelDate descending
-    allPosts.sort((a, b) => b.travelDate.compareTo(a.travelDate));
-
-    return allPosts;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,34 +30,7 @@ class Home extends StatelessWidget {
                 const SizedBox(height: 30),
                 _buildBanner(),
                 const SizedBox(height: 30),
-
-                // 🔁 Firestore Data from FutureBuilder
-                FutureBuilder<List<PostModel>>(
-                  future: futureUserPosts,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return const Center(child: Text('Error loading posts'));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No posts available'));
-                    }
-
-                    final posts = snapshot.data!;
-                    return Column(
-                      children:
-                          posts
-                              .map(
-                                (post) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 30),
-                                  child: NewsFeedCard(post: post),
-                                ),
-                              )
-                              .toList(),
-                    );
-                  },
-                ),
-
+                _buildPostStream(),
                 const SizedBox(height: 30),
               ],
             ),
@@ -148,16 +82,12 @@ class Home extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           IconButton(
-            onPressed: () {
-              Get.to(RegisterPage());
-            },
+            onPressed: () => Get.to(RegisterPage()),
             icon: const Icon(Iconsax.menu_1, size: 24),
           ),
           if (FirebaseAuth.instance.currentUser != null)
             IconButton(
-              onPressed: () async {
-                await controller.logoutUser();
-              },
+              onPressed: () async => await controller.logoutUser(),
               icon: const Icon(Iconsax.logout, size: 24),
             ),
         ],
@@ -170,58 +100,38 @@ class Home extends StatelessWidget {
       LayoutBuilder(
         builder: (context, constraints) {
           final isSmall = constraints.maxWidth < 400;
+          final width =
+              isSmall ? constraints.maxWidth : (constraints.maxWidth - 12) / 2;
           return Wrap(
             spacing: 12,
             runSpacing: 12,
             alignment: WrapAlignment.center,
             children: [
               SizedBox(
-                width:
-                    isSmall
-                        ? constraints.maxWidth
-                        : (constraints.maxWidth - 12) / 2,
+                width: width,
                 child: _button(
-                  onTapped: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ShareWidget()),
-                    );
-                  },
-                  text: 'Share Your Experience',
-                  icon: Iconsax.people,
-                  fullWidth: true,
+                  () => Get.to(() => ShareWidget()),
+                  'Share Your Experience',
+                  Iconsax.people,
                 ),
               ),
               SizedBox(
-                width:
-                    isSmall
-                        ? constraints.maxWidth
-                        : (constraints.maxWidth - 12) / 2,
-                child: _button(
-                  onTapped: () {},
-                  text: 'Ask A Question',
-                  icon: Iconsax.profile_2user,
-                  fullWidth: true,
-                ),
+                width: width,
+                child: _button(() {}, 'Ask A Question', Iconsax.profile_2user),
               ),
             ],
           );
         },
       ),
       const SizedBox(height: 16),
-      _button(
-        onTapped: () {},
-        text: 'Search',
-        icon: Iconsax.search_normal,
-        fullWidth: true,
-      ),
+      _button(() {}, 'Search', Iconsax.search_normal, fullWidth: true),
     ],
   );
 
-  Widget _button({
-    required VoidCallback onTapped,
-    required String text,
-    required IconData icon,
+  Widget _button(
+    VoidCallback onTapped,
+    String text,
+    IconData icon, {
     bool fullWidth = false,
   }) => GestureDetector(
     onTap: onTapped,
@@ -258,5 +168,45 @@ class Home extends StatelessWidget {
       height: 120,
       fit: BoxFit.cover,
     ),
+  );
+
+  Widget _buildPostStream() => StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance.collection('users').snapshots(),
+    builder: (context, userSnapshot) {
+      if (userSnapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (userSnapshot.hasError) {
+        return const Center(child: Text('Error loading posts'));
+      } else if (!userSnapshot.hasData || userSnapshot.data!.docs.isEmpty) {
+        return const Center(child: Text('No posts available'));
+      }
+
+      List<PostModel> allPosts = [];
+      for (var userDoc in userSnapshot.data!.docs) {
+        final data = userDoc.data() as Map<String, dynamic>;
+        if (data.containsKey('posts')) {
+          final List posts = data['posts'];
+          allPosts.addAll(
+            posts.map<PostModel>(
+              (postData) =>
+                  PostModel.fromMap(Map<String, dynamic>.from(postData)),
+            ),
+          );
+        }
+      }
+      allPosts.sort((a, b) => b.travelDate.compareTo(a.travelDate));
+
+      return Column(
+        children:
+            allPosts
+                .map(
+                  (post) => Padding(
+                    padding: const EdgeInsets.only(bottom: 30),
+                    child: NewsFeedCard(post: post),
+                  ),
+                )
+                .toList(),
+      );
+    },
   );
 }
