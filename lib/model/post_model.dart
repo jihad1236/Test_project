@@ -18,6 +18,31 @@ class PostModel {
     required this.rating,
     required this.imageUrl,
   });
-}
 
-// ✅ Dummy list outside the class
+  Map<String, dynamic> toMap() {
+    return {
+      'departureAirport': departureAirport,
+      'arrivalAirport': arrivalAirport,
+      'airline': airline,
+      'travelClass': travelClass,
+      'message': message,
+      'travelDate': travelDate.toIso8601String(), // Store as ISO string
+      'rating': rating,
+      'imageUrl': imageUrl,
+    };
+  }
+
+  // Optional: fromMap constructor for fetching back from Firebase
+  factory PostModel.fromMap(Map<String, dynamic> map) {
+    return PostModel(
+      departureAirport: map['departureAirport'],
+      arrivalAirport: map['arrivalAirport'],
+      airline: map['airline'],
+      travelClass: map['travelClass'],
+      message: map['message'],
+      travelDate: DateTime.parse(map['travelDate']),
+      rating: map['rating'].toDouble(),
+      imageUrl: map['imageUrl'],
+    );
+  }
+}

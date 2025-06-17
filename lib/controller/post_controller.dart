@@ -1,18 +1,21 @@
-import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:get/get.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:test_project/model/post_model.dart';
 
 class ShareController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final messageController = TextEditingController();
 
-  final departure = RxnString();
-  final arrival = RxnString();
-  final airline = RxnString();
-  final travelClass = RxnString();
+  final departure = ''.obs;
+  final arrival = ''.obs;
+  final airline = ''.obs;
+  final travelClass = ''.obs;
   final rating = 4.obs;
   final travelDate = Rx<DateTime?>(null);
+  final RxBool isLoading = false.obs;
+  final postModel = Rxn<PostModel>();
 
   final dummyPosts = <PostModel>[
     PostModel(
@@ -46,35 +49,72 @@ class ShareController extends GetxController {
   List<String> get dropdownClasses =>
       dummyPosts.map((e) => e.travelClass).toSet().toList();
 
-  PostModel? get postModel =>
-      departure.value != null &&
-              arrival.value != null &&
-              airline.value != null &&
-              travelClass.value != null &&
-              travelDate.value != null &&
-              messageController.text.isNotEmpty
-          ? PostModel(
-            departureAirport: departure.value!,
-            arrivalAirport: arrival.value!,
-            airline: airline.value!,
-            travelClass: travelClass.value!,
-            message: messageController.text,
-            travelDate: travelDate.value!,
-            rating: rating.value.toDouble(),
-            imageUrl: 'https://via.placeholder.com/150',
-          )
-          : null;
+  void updateRating(int stars) {
+    rating.value = stars;
+  }
 
-  void updateRating(int newRating) => rating.value = newRating;
-
-  Future<void> pickTravelDate(BuildContext context) async {
-    final picked = await showDatePicker(
+  void pickTravelDate(BuildContext context) async {
+    final picked = await showMonthPicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
     );
-    if (picked != null) travelDate.value = picked;
+    if (picked != null) {
+      travelDate.value = picked;
+    }
+  }
+
+  Future<void> submitPost() async {
+    isLoading.value = true;
+    if (formKey.currentState!.validate() &&
+        departure.value.isNotEmpty &&
+        arrival.value.isNotEmpty &&
+        airline.value.isNotEmpty &&
+        travelClass.value.isNotEmpty &&
+        travelDate.value != null &&
+        rating.value > 0 &&
+        messageController.text.isNotEmpty) {
+      final newPost = PostModel(
+        departureAirport: departure.value,
+        arrivalAirport: arrival.value,
+        airline: airline.value,
+        travelClass: travelClass.value,
+        message: messageController.text.trim(),
+        travelDate: travelDate.value!,
+        rating: rating.value.toDouble(),
+        imageUrl:
+            'https://example.com/demo.jpg', // Replace with actual upload logic
+      );
+
+      try {
+        await FirebaseFirestore.instance
+            .collection('posts')
+            .add(newPost.toMap());
+
+        postModel.value = newPost;
+
+        Get.snackbar(
+          'Success',
+          'Post submitted successfully',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } catch (e) {
+        Get.snackbar(
+          'Error',
+          'Failed to upload post: $e',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } else {
+      Get.snackbar(
+        'Error',
+        'Please complete all fields',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+
+    isLoading.value = false;
   }
 
   @override
