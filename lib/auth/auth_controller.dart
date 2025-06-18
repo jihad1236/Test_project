@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_project/model/user_model.dart';
 import 'package:test_project/views/authentication/login.dart';
+import 'package:test_project/views/authentication/register.dart';
 import 'package:test_project/views/homepage/home.dart';
 
 class AuthController extends GetxController {
@@ -102,7 +103,7 @@ class AuthController extends GetxController {
 
       await FirebaseAuth.instance.signOut();
       Get.snackbar('Success', 'You have been logged out.');
-      Get.to(LoginPage()); // or use Get.offAll(LoginPage());
+      Get.to(RegisterPage()); // or use Get.offAll(LoginPage());
     } catch (e) {
       Get.snackbar('Error', 'Logout failed: $e');
     }
