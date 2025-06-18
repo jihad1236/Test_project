@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_project/model/user_model.dart';
 import 'package:test_project/views/authentication/login.dart';
-import 'package:test_project/views/home.dart';
+import 'package:test_project/views/presentations/home.dart';
 
 class AuthController extends GetxController {
   final formKey = GlobalKey<FormState>();

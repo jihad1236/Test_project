@@ -83,22 +83,6 @@ class LoginPage extends StatelessWidget {
                           ),
                         );
                   }),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     const Text(
-                  //       'Already have an account?',
-                  //       style: TextStyle(color: Colors.black87, fontSize: 16),
-                  //     ),
-                  //     TextButton(
-                  //       onPressed: () {},
-                  //       child: const Text(
-                  //         'Login',
-                  //         style: TextStyle(color: Colors.blue, fontSize: 16),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
                 ],
               ),
             ),

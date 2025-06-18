@@ -18,7 +18,8 @@ class ShareController extends GetxController {
   final RxBool isLoading = false.obs;
   final postModel = Rxn<PostModel>();
 
-  final dummyPosts = <PostModel>[
+  // 🔰 PostModel-based dummy list
+  final List<PostModel> dummyPosts = [
     PostModel(
       id: '1',
       departureAirport: 'JFK',
@@ -49,14 +50,160 @@ class ShareController extends GetxController {
     ),
   ];
 
-  List<String> get dropdownAirports =>
+  final List<Map<String, dynamic>> allFlightPosts = [
+    {
+      "id": "POST12345",
+      "passenger": "Rifat Hossain",
+      "departureAirport": {
+        "cityCountry": "Dhaka, Bangladesh",
+        "airportName": "Hazrat Shahjalal International Airport",
+        "iata": "DAC",
+      },
+      "arrivalAirport": {
+        "cityCountry": "Chittagong, Bangladesh",
+        "airportName": "Shah Amanat International Airport",
+        "iata": "CGP",
+      },
+      "airline": {
+        "name": "Biman Bangladesh Airlines",
+        "iata": "BG",
+        "country": "Bangladesh",
+      },
+      "travelClass": "Business",
+      "seat": "3A",
+      "travelDate": "2025-07-21T09:30:00.000Z",
+      "rating": 4.7,
+      "message": "Had a smooth business class flight from Dhaka to Chittagong!",
+      "imageUrl": [
+        "https://via.placeholder.com/600x400?text=Cabin+View",
+        "https://via.placeholder.com/600x400?text=Meal+Service",
+        "https://via.placeholder.com/600x400?text=Window+View",
+      ],
+      "likes": ["uid_123", "uid_456"],
+      "comments": ["Excellent trip!", "Nice airline service."],
+      "replays": [
+        {
+          "uid": "uid_123",
+          "comment": "Thanks for sharing!",
+          "timestamp": "2025-07-22T12:00:00Z",
+        },
+      ],
+    },
+    {
+      "id": "POST12346",
+      "passenger": "Ayesha Siddique",
+      "departureAirport": {
+        "cityCountry": "Sylhet, Bangladesh",
+        "airportName": "Osmani International Airport",
+        "iata": "ZYL",
+      },
+      "arrivalAirport": {
+        "cityCountry": "Cox's Bazar, Bangladesh",
+        "airportName": "Cox's Bazar Airport",
+        "iata": "CXB",
+      },
+      "airline": {
+        "name": "Air Bangladesh",
+        "iata": "B9",
+        "country": "Bangladesh",
+      },
+      "travelClass": "Economy",
+      "seat": "10C",
+      "travelDate": "2025-08-10T16:00:00.000Z",
+      "rating": 4.2,
+      "message": "Vacation trip to Cox's Bazar. Nice experience!",
+      "imageUrl": [
+        "https://via.placeholder.com/600x400?text=Boarding",
+        "https://via.placeholder.com/600x400?text=Flight+Interior",
+        "https://via.placeholder.com/600x400?text=Beach+View",
+      ],
+      "likes": ["uid_789"],
+      "comments": ["Looks beautiful!", "Enjoy your trip!"],
+      "replays": [],
+    },
+    {
+      "id": "POST12347",
+      "passenger": "Tanvir Rahman",
+      "departureAirport": {
+        "cityCountry": "Jessore, Bangladesh",
+        "airportName": "Jessore Airport",
+        "iata": "JSR",
+      },
+      "arrivalAirport": {
+        "cityCountry": "Rajshahi, Bangladesh",
+        "airportName": "Shah Mokhdum Airport",
+        "iata": "RJH",
+      },
+      "airline": {
+        "name": "United Airways",
+        "iata": "4H",
+        "country": "Bangladesh",
+      },
+      "travelClass": "First Class",
+      "seat": "1A",
+      "travelDate": "2025-09-01T11:45:00.000Z",
+      "rating": 4.9,
+      "message": "Premium service all the way from Jessore to Rajshahi!",
+      "imageUrl": [
+        "https://via.placeholder.com/600x400?text=First+Class+Seat",
+        "https://via.placeholder.com/600x400?text=Airport+Lounge",
+        "https://via.placeholder.com/600x400?text=Landing",
+      ],
+      "likes": ["uid_111", "uid_222", "uid_333"],
+      "comments": ["Luxury!", "So clean!", "Top notch"],
+      "replays": [
+        {
+          "uid": "uid_222",
+          "comment": "Agreed!",
+          "timestamp": "2025-09-02T08:15:00Z",
+        },
+      ],
+    },
+  ];
+
+  // ✅ DROPDOWN OPTIONS (from dummyPosts)
+  List<String> get dropdownDepartureAirportsFromModel =>
       dummyPosts.map((e) => e.departureAirport).toSet().toList();
-  List<String> get dropdownArrivals =>
+
+  List<String> get dropdownArrivalAirportsFromModel =>
       dummyPosts.map((e) => e.arrivalAirport).toSet().toList();
-  List<String> get dropdownAirlines =>
+
+  List<String> get dropdownAirlinesFromModel =>
       dummyPosts.map((e) => e.airline).toSet().toList();
-  List<String> get dropdownClasses =>
+
+  List<String> get dropdownClassesFromModel =>
       dummyPosts.map((e) => e.travelClass).toSet().toList();
+
+  // ✅ DROPDOWN OPTIONS (from flightPost-style map)
+  List<String> get dropdownDepartureAirportsFromMap =>
+      allFlightPosts
+          .map((e) {
+            final dep = e['departureAirport'];
+            return "${dep['cityCountry']} (${dep['iata']})";
+          })
+          .toSet()
+          .toList();
+
+  List<String> get dropdownArrivalAirportsFromMap =>
+      allFlightPosts
+          .map((e) {
+            final arr = e['arrivalAirport'];
+            return "${arr['cityCountry']} (${arr['iata']})";
+          })
+          .toSet()
+          .toList();
+
+  List<String> get dropdownAirlinesFromMap =>
+      allFlightPosts
+          .map((e) {
+            final airline = e['airline'];
+            return "${airline['name']} (${airline['iata']})";
+          })
+          .toSet()
+          .toList();
+
+  List<String> get dropdownClassesFromMap =>
+      allFlightPosts.map((e) => e['travelClass'].toString()).toSet().toList();
 
   void updateRating(int stars) {
     rating.value = stars;

@@ -55,28 +55,36 @@ class ShareWidget extends StatelessWidget {
                     const SizedBox(height: 28),
                     upload_box(isSmall: isSmall),
                     const SizedBox(height: 28),
+                    // 🔽 Departure Airport Dropdown
                     dropdown(
                       label: 'Departure Airport',
-                      items: controller.dropdownAirports,
+                      items: controller.dropdownDepartureAirportsFromMap,
                       onChanged:
                           (val) => controller.departure.value = val ?? '',
                     ),
+
+                    // 🔽 Arrival Airport Dropdown
                     dropdown(
                       label: 'Arrival Airport',
-                      items: controller.dropdownArrivals,
+                      items: controller.dropdownArrivalAirportsFromMap,
                       onChanged: (val) => controller.arrival.value = val ?? '',
                     ),
+
+                    // 🔽 Airline Dropdown
                     dropdown(
                       label: 'Airline',
-                      items: controller.dropdownAirlines,
+                      items: controller.dropdownAirlinesFromMap,
                       onChanged: (val) => controller.airline.value = val ?? '',
                     ),
+
+                    // 🔽 Travel Class Dropdown
                     dropdown(
-                      label: 'Class',
-                      items: controller.dropdownClasses,
+                      label: 'Travel Class',
+                      items: controller.dropdownClassesFromMap,
                       onChanged:
                           (val) => controller.travelClass.value = val ?? '',
                     ),
+
                     const SizedBox(height: 18),
                     TextFormField(
                       controller: controller.messageController,

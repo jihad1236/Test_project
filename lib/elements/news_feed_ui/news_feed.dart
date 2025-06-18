@@ -91,20 +91,15 @@ class NewsFeedCard extends StatelessWidget {
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
+            runSpacing: 8,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _Badge(text: post.airline),
-                  _Badge(text: post.departureAirport),
-                  _Badge(text: post.arrivalAirport),
-                  _Badge(
-                    text: '${post.travelDate.month}/${post.travelDate.year}',
-                  ),
-                ],
-              ),
+              _Badge(text: post.airline),
+              _Badge(text: post.departureAirport),
+              _Badge(text: post.arrivalAirport),
+              _Badge(text: '${post.travelDate.month}/${post.travelDate.year}'),
             ],
           ),
+
           const SizedBox(height: 12),
           Text(post.message, style: const TextStyle(fontSize: 14, height: 1.4)),
           const SizedBox(height: 4),
@@ -116,15 +111,56 @@ class NewsFeedCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              post.imageUrl![0],
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          if (post.imageUrl != null && post.imageUrl!.length >= 3)
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final screenWidth = constraints.maxWidth;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Image 1: Full Width
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        post.imageUrl![0],
+                        height: screenWidth * 0.55, // ~55% of screen width
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Image 2 and 3: Side by side
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset(
+                              post.imageUrl![1],
+                              height: screenWidth * 0.3, // ~30% of screen width
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset(
+                              post.imageUrl![2],
+                              height: screenWidth * 0.3,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
             ),
-          ),
+
           const SizedBox(height: 10),
           const Row(
             children: [

@@ -5,10 +5,10 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:test_project/auth/auth_controller.dart';
 import 'package:test_project/consts/app_colors.dart';
-import 'package:test_project/elements/news_feed.dart';
+import 'package:test_project/elements/news_feed_ui/news_feed.dart';
 import 'package:test_project/model/post_model.dart';
 import 'package:test_project/views/authentication/register.dart';
-import 'package:test_project/views/post.dart';
+import 'package:test_project/views/presentations/post.dart';
 
 class Home extends StatelessWidget {
   Home({super.key});
