@@ -6,7 +6,7 @@ import 'package:test_project/controller/post_controller.dart';
 import 'package:test_project/firebase_options.dart';
 import 'package:test_project/views/authentication/login.dart';
 import 'package:test_project/views/authentication/register.dart';
-import 'package:test_project/views/presentations/home.dart';
+import 'package:test_project/views/homepage/home.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

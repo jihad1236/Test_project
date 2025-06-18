@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:test_project/consts/app_colors.dart';
-import 'package:test_project/elements/news_feed_ui/commnet_details.dart';
+import 'package:test_project/views/comment_page/commnet_details.dart';
 
 class CommentCard extends StatelessWidget {
   final String postId; // Pass postId to load specific post's comments

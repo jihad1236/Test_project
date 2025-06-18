@@ -16,6 +16,7 @@ class dropdown extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 18),
     child: DropdownButtonFormField<String>(
+      alignment: AlignmentDirectional.bottomEnd,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(

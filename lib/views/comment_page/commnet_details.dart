@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:test_project/consts/app_colors.dart';
+import 'package:test_project/views/comment_page/widgets/comment_item.dart';
 
 class CommentDetails extends StatelessWidget {
   final String postId;
@@ -75,7 +76,7 @@ class CommentDetails extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _commentItem(
+                    CommentItem(
                       avatarUrl:
                           'https://cdn-icons-png.flaticon.com/512/147/147144.png',
                       name: 'User',
@@ -85,7 +86,7 @@ class CommentDetails extends StatelessWidget {
                     ...replies.map(
                       (reply) => Padding(
                         padding: const EdgeInsets.only(left: 40),
-                        child: _commentItem(
+                        child: CommentItem(
                           avatarUrl:
                               'https://cdn-icons-png.flaticon.com/512/236/236831.png',
                           name: 'ReplyUser',
@@ -143,89 +144,6 @@ class CommentDetails extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-
-  Widget _commentItem({
-    required String avatarUrl,
-    required String name,
-    required String comment,
-    required String time,
-    String? mentionName,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CircleAvatar(radius: 18, backgroundImage: NetworkImage(avatarUrl)),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 14,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: '$name\n',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      if (mentionName != null)
-                        TextSpan(
-                          text: '$mentionName ',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      TextSpan(
-                        text: comment.replaceFirst(mentionName ?? '', ''),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Text(
-                    time,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Text(
-                    'Like',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Text(
-                    'Reply',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:test_project/controller/post_controller.dart';
-import 'package:test_project/views/widgets/dropdown.dart';
-import 'package:test_project/views/widgets/upload_box.dart';
+import 'package:test_project/views/homepage/widgets/dropdown.dart';
+import 'package:test_project/views/homepage/widgets/upload_box.dart';
 
 class ShareWidget extends StatelessWidget {
   const ShareWidget({super.key});
@@ -14,6 +14,14 @@ class ShareWidget extends StatelessWidget {
     final isSmall = MediaQuery.of(context).size.width <= 991;
 
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Get.back();
+          },
+          icon: Icon(Icons.arrow_back),
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
